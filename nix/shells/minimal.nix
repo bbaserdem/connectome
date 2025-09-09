@@ -1,10 +1,16 @@
-# Minimal shell - just base tools, no Python integration
+# Minimal runtime shell - only environment requirements, no dev tools
 {
   pkgs,
-  baseConfig,
   ...
 }: {
-  packages = baseConfig.packages;
-  env = baseConfig.env;
-  shellHook = baseConfig.shellHook;
+  packages = with pkgs; [
+    # Runtime requirements only
+    git
+    coreutils
+    findutils
+    gnugrep
+    gnused
+  ];
+  env = {};
+  shellHook = "";
 }

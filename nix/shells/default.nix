@@ -1,4 +1,4 @@
-# Modular shell configurations with composition
+# Shell configurations
 {
   pkgs,
   inputs,
@@ -6,47 +6,79 @@
   uvBoilerplate,
   ...
 }: let
-  # Create base configuration that all shells can compose upon
-  baseConfig = import ./base-config.nix {
-    inherit pkgs uvBoilerplate;
-  };
-
-  # Shell aliases and scripts
-  mkScript = name: text: let
-    script = pkgs.writeShellScriptBin name text;
-  in
-    script;
-  scripts = [
-    #(mkScript "<Alias>" "<cmd> \"$@\"")
-  ];
-
-  # Helper function to create a shell from a configuration
+  # Common configuration used by all shells
+  commonConfig = import ./common.nix { inherit pkgs; };
+  
+  # Helper to create shells
   mkShell = config:
     pkgs.mkShell {
-      packages = config.packages ++ scripts;
+      packages = config.packages;
       env = config.env;
       shellHook = config.shellHook;
     };
 
-  # Import individual shell configurations
-  minimalConfig = import ./minimal.nix {inherit pkgs baseConfig;};
-  pythonOnlyConfig = import ./python-only.nix {inherit pkgs baseConfig;};
-  developmentConfig = {
+  # Individual shell configurations
+  minimalShell = import ./minimal.nix { inherit pkgs; };
+  pythonShell = import ./python.nix { inherit pkgs commonConfig uvBoilerplate; };
+  goShell = import ./go.nix { inherit pkgs commonConfig; };
+  rustShell = import ./rust.nix { inherit pkgs commonConfig; };
+  nodejsShell = import ./nodejs.nix { inherit pkgs commonConfig; };
+  
+  # Default shell with all development tools
+  defaultShell = {
     packages = pkgs.lib.unique (
-      baseConfig.packages
-      ++ baseConfig.python.packages
+      commonConfig.packages
+      ++ (with pkgs; [
+        # Python
+        uv
+        # Go  
+        go
+        gopls
+        gotools
+        go-migrate
+        delve
+        # Rust
+        rustc
+        cargo
+        rustfmt
+        rust-analyzer
+        clippy
+        # Node.js
+        nodejs
+        pnpm
+        typescript
+        nodePackages.typescript-language-server
+      ])
+      ++ uvBoilerplate.uvShellSet.packages
     );
-    env =
-      baseConfig.env
-      // baseConfig.python.env;
-    shellHook =
-      baseConfig.shellHook
-      + "\n"
-      + baseConfig.python.shellHook;
+    
+    env = commonConfig.env // uvBoilerplate.uvShellSet.env // {
+      CGO_ENABLED = "1";
+    };
+    
+    shellHook = ''
+      ${uvBoilerplate.uvShellSet.shellHook}
+      
+      # Go workspace
+      export GOPATH="$PWD/.go"
+      export GOCACHE="$PWD/.go/cache"
+      export PATH="$GOPATH/bin:$PATH"
+      
+      # Cargo home
+      export CARGO_HOME="$PWD/.cargo"
+      export PATH="$CARGO_HOME/bin:$PATH"
+      
+      # Node modules (already in path from base)
+      export PATH="$PWD/node_modules/.bin:$PATH"
+    '';
   };
+
 in {
-  # Export all shell environments (only derivations for flake compatibility)
-  default = mkShell developmentConfig; # Default is development (base + python)
-  minimal = mkShell minimalConfig; # Just base tools
-  python = mkShell pythonOnlyConfig; # Python environment only
+  # Export all shell environments
+  default = mkShell defaultShell;
+  minimal = mkShell minimalShell;
+  python = mkShell pythonShell;
+  go = mkShell goShell;
+  rust = mkShell rustShell;
+  nodejs = mkShell nodejsShell;
 }
