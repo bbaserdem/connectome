@@ -29,19 +29,6 @@ config.local.json
 # Quaestor
 .quaestor/
 
-# Claude
-.claude
-.claude/
-CLAUDE.md
-.mcp.json
-
-# Amp
-AGENT.md
-
-# Taskmaster
-.taskmaster
-.taskmaster/
-
 # =============================================================================
 # PROJECT SPECIFIC (add your own patterns below)
 # =============================================================================
