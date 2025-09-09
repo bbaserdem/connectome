@@ -14,8 +14,8 @@ if ! command -v gitleaks >/dev/null 2>&1; then
 fi
 
 echo "[gitleaks] scanning staged changes…"
-# --staged keeps it fast and focused on what you're committing
-if ! gitleaks detect --staged --no-banner --redact --config ".gitleaks.toml"; then
+# Use 'protect --staged' to scan only staged changes
+if ! gitleaks protect --staged --no-banner --redact --config ".gitleaks.toml"; then
   cat <<'EOF'
 
 [gitleaks] Potential secrets detected. Commit blocked.
