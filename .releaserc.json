@@ -8,7 +8,8 @@
       {
         "verifyConditionsCmd": "echo 'Verifying conditions for multi-language release'",
         "prepareCmd": "scripts/prepare-release.sh ${nextRelease.version}",
-        "publishCmd": "scripts/publish-release.sh ${nextRelease.version}"
+        "publishCmd": "scripts/build-release.sh ${nextRelease.version}",
+        "successCmd": "echo 'Release ${nextRelease.version} created successfully - binaries built locally'"
       }
     ],
     [
