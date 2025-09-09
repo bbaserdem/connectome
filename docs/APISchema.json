@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Connectome Internal API",
+  "type": "object",
+  "definitions": {
+    "Point": {
+      "type": "object",
+      "properties": {
+        "row": { "type": "integer", "minimum": 0 },
+        "column": { "type": "integer", "minimum": 0 }
+      },
+      "required": [ "row", "column" ]
+    },
+    "EditDescriptor": {
+      "type": "object",
+      "properties": {
+        "start_byte": { "type": "integer", "minimum": 0 },
+        "old_end_byte": { "type": "integer", "minimum": 0 },
+        "new_end_byte": { "type": "integer", "minimum": 0 },
+        "start_point": { "$ref": "#/definitions/Point" },
+        "old_end_point": { "$ref": "#/definitions/Point" },
+        "new_end_point": { "$ref": "#/definitions/Point" }
+      },
+      "required": [
+        "start_byte", "old_end_byte", "new_end_byte",
+        "start_point", "old_end_point", "new_end_point"
+      ]
+    },
+    "FileEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": [ "created", "modified", "deleted" ]
+        },
+        "path": { "type": "string" },
+        "size": { "type": "integer", "minimum": 0 },
+        "mimetype": { "type": "string" },
+        "is_indexed": { "type": "boolean" },
+        "edit_descriptors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/EditDescriptor" }
+        }
+      },
+      "required": [ "event", "path", "size", "mimetype", "is_indexed" ]
+    },
+    "FileSnapshot": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "size": { "type": "integer", "minimum": 0 },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": [ "path", "size", "content", "timestamp" ]
+    },
+    "ParseRequest": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "content": { "type": "string" },
+        "edit_descriptors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/EditDescriptor" }
+        },
+        "language": { "type": "string" }
+      },
+      "required": [ "path", "content", "language" ]
+    },
+    "Node": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "name": { "type": "string" },
+        "startline": { "type": "integer" },
+        "endline": { "type": "integer" },
+        "docstring": { "type": "string" }
+      },
+      "required": [ "id", "type", "name", "startline", "endline" ]
+    },
+    "Edge": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "from": { "type": "string" },
+        "to": { "type": "string" }
+      },
+      "required": [ "type", "from", "to" ]
+    },
+    "ParseResult": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "success": { "type": "boolean" },
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Node" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Edge" }
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": [ "path", "success", "nodes", "edges" ]
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/definitions/FileEvent" },
+    { "$ref": "#/definitions/FileSnapshot" },
+    { "$ref": "#/definitions/ParseRequest" },
+    { "$ref": "#/definitions/ParseResult" }
+  ]
+}
