@@ -37,6 +37,33 @@ config.local.json
 !assets/**.png
 
 # =============================================================================
+# GO
+# =============================================================================
+# Local Go workspace
+.go/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+# Test binary, built with `go test -c`
+*.test
+# Output of the go coverage tool
+*.out
+# Dependency directories (keep vendor/ if using vendoring)
+# vendor/
+
+# =============================================================================
+# RUST
+# =============================================================================
+# Local Cargo home
+.cargo/
+# Rust build directory
+target/
+# Cargo lock file (include for applications, exclude for libraries)
+# Cargo.lock
+
+# =============================================================================
 # MEDIA & LARGE FILES
 # =============================================================================
 # Videos
