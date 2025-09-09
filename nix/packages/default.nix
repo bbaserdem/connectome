@@ -17,6 +17,10 @@
   pythonPackages = import ./python.nix {
     inherit pkgs uvBoilerplate pythonProject;
   };
+  
+  goPackages = import ./go.nix {
+    inherit pkgs lib;
+  };
 
   customPackages = import ./custom.nix {
     inherit pkgs lib stdenv;
@@ -46,7 +50,7 @@ in
     # default = pythonPackages.template or null;
   }
   // pythonPackages # Python workspace packages
-  // customPackages
+  // goPackages # Go packages
+  // customPackages # Custom utility packages
   // dockerImages
-# Custom utility packages
 

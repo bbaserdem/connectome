@@ -3,11 +3,15 @@
   pkgs,
   lib,
   ...
-}: rec {
+}: let
+  # Read version from package.json
+  packageJson = builtins.fromJSON (builtins.readFile ../../package.json);
+  version = packageJson.version or "dev";
+in rec {
   # Main Connectome Go binary
   connectome-go = pkgs.buildGoModule {
     pname = "connectome-go";
-    version = "0.1.0";
+    inherit version;
     
     src = ../..;
     
